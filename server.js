@@ -12,7 +12,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static("public"));
 
 mongoose.Promise = Promise;
-mongoose.connect("mongodb://localhost/mongoScrape_db", {
+mongoose.connect("mongodb://heroku_14pdvb47:cfcj25q8gjjipk5pgjgirglfr3@ds235807.mlab.com:35807/heroku_14pdvb47", {
   useMongoClient: true
 });
 
@@ -116,16 +116,40 @@ app.post("/add/:id", function(req, res) {
   newCom.article = req.params.id;
   db.Comments
     .create(newCom)
-    .then(function(dbId) {
+    .then(function(dbComments) {
       // return db.Article.findOneAndUpdate({ _id: req.params.id }, { comment: dbId._id}, { new: true });
     })
+    .catch(function(err) {
+      res.json(err);
+    });
   res.redirect("/")
 });
 
 app.get("/api/comments/:id", function(req, res) {
   db.Comments
-})
+    .find({ article: req.params.id })
+    .then(function(dbComments) {
+      res.json(dbComments);
+    })
+    .catch(function(err) {
+      res.json(err);
+    });
+});
+
+app.get("/api/del/:id", function(req, res) {
+  db.Comments
+    .find({ _id: req.params.id })
+    .remove()
+    .then(function(dbComments) {
+      res.redirect("/");
+    })
+    .catch(function(err) {
+      res.json(err);
+    });
+});
 
 app.listen(PORT, function() {
   console.log("App running on port " + PORT + "!");
 });
+
+// mongodb://heroku_14pdvb47:cfcj25q8gjjipk5pgjgirglfr3@ds235807.mlab.com:35807/heroku_14pdvb47
